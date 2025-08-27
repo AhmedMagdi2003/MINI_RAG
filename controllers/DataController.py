@@ -24,7 +24,7 @@ class DataController(BaseController):
         new_file_path = os.path.join(project_path,
                                     random_key + '_' +clean_file_name )
         
-        while os.path.exists(new_file_path):
+        while os.path.exists(new_file_path): # if the same key and projectid in system creat new key
             project_path = ProjectController().get_project_path(project_id=project_id)
             new_file_path = os.path.join(project_path,
                                     random_key + '_' +clean_file_name )
