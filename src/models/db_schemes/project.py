@@ -1,17 +1,18 @@
 from pydantic import BaseModel, Field, validator
 from typing import Optional
 from bson.objectid import ObjectId
+import re
 class Project(BaseModel):
-    _id : Optional[ObjectId]
-    project_id : str = Field(...,min_length=1)
+    id: Optional[str] = Field(alias="_id")
+    project_id: str = Field(..., min_length=1)
 
     @validator('project_id')
-    def validator_project_id(cls,value):
-        if not value.isalnum():
-            raise ValueError("project_id must be in alphanumeric")
-        else:
-            return value
-        
+    def validate_project_id(cls, value):
+        import re
+        if not re.match(r'^[a-zA-Z0-9_-]+$', value):
+            raise ValueError('project_id must be alphanumeric, with optional - or _')
+        return value
+
     class Config:
         arbitrary_types_allowed = True
-
+        
