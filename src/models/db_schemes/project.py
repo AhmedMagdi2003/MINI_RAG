@@ -1,9 +1,11 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, ConfigDict
 from typing import Optional
 from bson.objectid import ObjectId
 class Project(BaseModel):
-    _id : Optional[ObjectId]
+    model_config = ConfigDict(arbitrary_types_allowed=True, populate_by_name=True)
+    
     project_id : str = Field(...,min_length=1)
+    id : Optional[ObjectId] = Field(default=None, alias="_id")
 
     @validator('project_id')
     def validator_project_id(cls,value):
@@ -11,7 +13,3 @@ class Project(BaseModel):
             raise ValueError("project_id must be in alphanumeric")
         else:
             return value
-        
-    class Config:
-        arbitrary_types_allowed = True
-
