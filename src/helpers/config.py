@@ -3,15 +3,22 @@ from typing import List, Union
 from pydantic import Field, field_validator
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     APP_NAME: str = "Mini-RAG"
     APP_VERSION: str = "1.0.0"
     FILE_ALLOWED_EXTENSIONS: Union[List[str], str] = Field(default=["txt", "pdf", "docx"])
     FILE_MAX_SIZE: int = 10485760  # 10MB
     FILE_DEFAULT_CHUNK_SIZE: int = 1024
-    MONGODB_URL: str = "mongodb://localhost:27017"
+    MONGODB_USERNAME: str = "admin"
+    MONGODB_PASSWORD: str = "admin"
+    MONGODB_HOST: str = "localhost"
+    MONGODB_PORT: int = 27007
     MONGODB_DATABASE: str = "mini_rag"
+    
+    @property
+    def MONGODB_URL(self) -> str:
+        return f"mongodb://{self.MONGODB_USERNAME}:{self.MONGODB_PASSWORD}@{self.MONGODB_HOST}:{self.MONGODB_PORT}"
 
     @field_validator("FILE_ALLOWED_EXTENSIONS", mode="before")
     @classmethod
