@@ -13,7 +13,6 @@ class Project(BaseModel):
             raise ValueError("project_id must be in alphanumeric")
         else:
             return value
-        
     @classmethod
     def get_indexes(cls):
 
