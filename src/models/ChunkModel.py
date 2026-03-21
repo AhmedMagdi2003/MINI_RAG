@@ -50,7 +50,7 @@ class ChunkModel(BaseDataModel):
             batch = chunks[i:i+batch_size]
 
             operations = [
-                InsertOne(chunk.dict())
+                InsertOne(chunk.dict(by_alias=True, exclude_unset=True, exclude={'id'}))
                 for chunk in batch
             ]
 
