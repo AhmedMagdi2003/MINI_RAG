@@ -1,3 +1,3 @@
 from LLMEnums import LLMEnums
 from LLMProviderFactory import LLMProviderFactory
-from LLMinterface import LLMinterface
+from LLMInterface import LLMInterface

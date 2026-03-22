@@ -1,9 +1,9 @@
-from ..LLMinterface import LLMinterface
+from ..a import LLMInterface
 from ..LLMEnums import COHEREnums
 import logging
 import cohere
 co = cohere.ClientV2()
-class CoHereProvider(LLMinterface):
+class CoHereProvider(LLMInterface):
     def __init__(self, api_key: str,
                 default_input_max_characters: int = 1000,
                 default_output_max_tokens:int = 1000,

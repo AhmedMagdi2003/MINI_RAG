@@ -1,9 +1,9 @@
-from ..LLMinterface import LLMinterface
+from ..a import LLMInterface
 from ..LLMEnums import OpenAIEnums
 from openai import OpenAI
 import logging
 
-class OpenAIProvider(LLMinterface):
+class OpenAIProvider(LLMInterface):
 
     def __init__(self, api_key: str, api_url: str = None,  # type: ignore
                 default_input_max_characters: int = 1000,
@@ -85,7 +85,7 @@ class OpenAIProvider(LLMinterface):
         
         response = self.client.embeddings.create(
             model = self.embedding_model_id, # pyright: ignore[reportArgumentType]
-            input = text
+            input = self.process_text(text)
         )
 
         if not response or not response.data or len(response.data) == 0 or not response.data[0].embedding:
