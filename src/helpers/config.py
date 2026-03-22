@@ -15,7 +15,17 @@ class Settings(BaseSettings):
     MONGODB_HOST: str = "localhost"
     MONGODB_PORT: int = 27007
     MONGODB_DATABASE: str = "mini_rag"
-    
+    GENERATION_BACKEND:str= None
+    EMBEDDING_BACKEND : str= None
+    GENERATION_MODEL_ID:str= None
+    EMBEDDING_MODEL_ID:str= None
+    EMBEDDING_MODEL_SIZE:int= None
+    INPUT_DAFAULT_MAX_CHARACTERS:int= None
+    GENERATION_DAFAULT_MAX_TOKENS:int= None
+    GENERATION_DAFAULT_TEMPERATURE:float= None
+    OPENAI_API_KEY :str = None
+    OPENAI_API_URL :str = None
+    COHERE_API_KEY : str = None
     @property
     def MONGODB_URL(self) -> str:
         return f"mongodb://{self.MONGODB_USERNAME}:{self.MONGODB_PASSWORD}@{self.MONGODB_HOST}:{self.MONGODB_PORT}"
