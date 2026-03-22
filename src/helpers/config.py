@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     OPENAI_API_KEY :str = None
     OPENAI_API_URL :str = None
     COHERE_API_KEY : str = None
+    VECTOR_DB_BACKEND : str 
+    VECTOR_DB_PATH : str 
+    VECTOR_DB_DISTANCE_METHOD:str =None
     @property
     def MONGODB_URL(self) -> str:
         return f"mongodb://{self.MONGODB_USERNAME}:{self.MONGODB_PASSWORD}@{self.MONGODB_HOST}:{self.MONGODB_PORT}"

@@ -1,3 +1,3 @@
 from ..LLMInterface import LLMInterface
-from .CoHereProvider import CoHereProvider
+from .CohereProvider import CohereProvider
 from .OpenAIProvider import OpenAIProvider
