@@ -9,3 +9,7 @@ class OpenAIEnums(Enum):
     SYSTEM = 'system'
     USER = 'user'
     ASSISTANT = "assistant"
+class COHEREnums(Enum):
+    SYSTEM = 'system'
+    USER = 'user'
+    ASSISTANT = "assistant"
