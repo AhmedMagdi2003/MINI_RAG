@@ -1,18 +1,28 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, ConfigDict
 from typing import Optional
 from bson.objectid import ObjectId
-import re
 class Project(BaseModel):
-    id: Optional[str] = Field(alias="_id")
-    project_id: str = Field(..., min_length=1)
+    model_config = ConfigDict(arbitrary_types_allowed=True, populate_by_name=True)
+    
+    project_id : str = Field(...,min_length=1)
+    id : Optional[ObjectId] = Field(default=None, alias="_id")
 
     @validator('project_id')
-    def validate_project_id(cls, value):
-        import re
-        if not re.match(r'^[a-zA-Z0-9_-]+$', value):
-            raise ValueError('project_id must be alphanumeric, with optional - or _')
-        return value
+    def validator_project_id(cls,value):
+        if not value.isalnum():
+            raise ValueError("project_id must be in alphanumeric")
+        else:
+            return value
+    @classmethod
+    def get_indexes(cls):
 
-    class Config:
-        arbitrary_types_allowed = True
-        
+        return [
+            {
+                'key':[('project_id',1)],
+                
+                'name':'project_id_index_1',
+
+                'unique':True
+            }
+        ]
+

@@ -8,7 +8,7 @@ class DataController(BaseController):
     def __init__(self):
         super().__init__()
     def validate_uploaded_file(self,file:UploadFile):
-        if file.content_type not in self.app_settings.FILE_ALLOWED_EXTENSION.split(',') :
+        if file.content_type not in self.app_settings.FILE_ALLOWED_EXTENSIONS :
             return False,ResponseSignal.FILE_TYPE_NOT_SUPPORTED.value
         
         if file.size > self.app_settings.FILE_MAX_SIZE *1024*1024:

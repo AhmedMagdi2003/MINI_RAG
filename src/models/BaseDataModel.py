@@ -1,8 +1,6 @@
-from helpers.config import Settings,get_settings
+from helpers.config import Settings, get_settings
 
 class BaseDataModel:
-
-    def __init__(self,db_client: object):
+    def __init__(self,db_client:object):
         self.db_client = db_client
-        self.settings = get_settings()
-
+        self.app_settings = get_settings()
