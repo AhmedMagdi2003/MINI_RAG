@@ -49,7 +49,7 @@ class NLPController(BaseController):
         # step3: create collection if not exists
         _ = self.vectordb_client.create_collection(
             collection_name=collection_name,
-            embedding_size=self.embedding_client.embedding_size,
+            embedding_size=self.embedding_client.embedding_model_size,
             do_reset=do_reset,
         )
 

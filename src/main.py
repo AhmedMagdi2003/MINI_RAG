@@ -19,7 +19,7 @@ async def startup_span():
     # vector db provider 
     vectordb_factory_provider = VectorDBProviderFactory(settings)
     app.vectordb_client = vectordb_factory_provider.create(provider=settings.VECTOR_DB_BACKEND)
-    app.vectordb_client.connect()
+#    app.vectordb_client.connect()
 async def shutdown_span():
     app.mongo_conn.close()
     app.vectordb_client.disconnect()
