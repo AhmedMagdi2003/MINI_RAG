@@ -61,28 +61,40 @@ class CohereProvider(LLMInterface):
             return None
         return response.message.content[0].text
 
-    def embed_text(self, text: str, documnet_type: str = DocumentTypeEnum.QUERY.value):
+    def embed_text(self, text: str, document_type: str = DocumentTypeEnum.QUERY.value):
         if not self.client:
-            self.logger.error("OpenAI client was not set")
+            self.logger.error("Cohere client was not set")
+            return None
 
         if not self.embedding_model_id:
-            self.logger.error("Embedding model for OpenAI want not set")       
+            self.logger.error("Embedding model for Cohere was not set")
+            return None       
             
-        self.logger.info(f"Embedding text with model_id: {self.embedding_model_id}, input_type: {documnet_type}")
-        # Validate input_type for the embedding model
-        valid_input_types = ['document', 'query']  # Replace with actual valid types for the model
-        if documnet_type not in valid_input_types:
-            self.logger.error(f"Invalid input_type '{documnet_type}' for model '{self.embedding_model_id}'.")
+        self.logger.info(f"Embedding text with model_id: {self.embedding_model_id}, input_type: {document_type}")
+        
+        # 1. Map internal DocumentTypeEnum to valid Cohere v3 input_types
+        cohere_input_type = "search_query"
+        if document_type == DocumentTypeEnum.DOCUMENT.value:
+            cohere_input_type = "search_document"
+
+        try:
+            # 2. Use 'texts' with a flat list of strings and pass the mapped input_type
+            response = self.client.embed(
+                texts=[self.process_text(text)],
+                model=self.embedding_model_id,
+                input_type=cohere_input_type,
+                embedding_types=["float"] # Explicitly specify to return float arrays
+            )
+        except Exception as e:
+            self.logger.error(f"Error while embedding text with CoHere: {e}")
             return None
-        response = self.client.embed(
-        inputs=self.construct_embed_text(self.process_text(text)),
-        model=self.embedding_model_id,
-        input_type=DocumentTypeEnum.QUERY.value
-        )
-        if not response or not response.embeddings or not response.embeddings.floats:
-            self.logger.error("Error while embedding text with CoHere")
+        
+        # 3. Access floats correctly (Cohere Python SDK V2 returns .float_)
+        if not response or not response.embeddings or not response.embeddings.float_:
+            self.logger.error("Error while embedding text with CoHere: empty response")
             return None
-        return response.embeddings.floats[0]
+            
+        return response.embeddings.float_[0]
 
     def construct_prompt(self, prompt: str, role: str):
         return {
