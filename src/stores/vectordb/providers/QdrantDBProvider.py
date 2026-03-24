@@ -70,7 +70,7 @@ class QdrantDBProvider(VectorDBInterface):
             self.logger.error("Error while inserting batch")
             return False
         return True
-    def insert_many(self, collection_name: str, texts: List, vectors: List, metadata: List = None, record_ids: List = None, batch_size: int = 50):
+def insert_many(self, collection_name: str, texts: List, vectors: List, metadata: List = None, record_ids: List = None, batch_size: int = 50):
         if metadata is None:
             metadata = [None] *len(texts)
         if record_ids is None:
@@ -91,18 +91,21 @@ class QdrantDBProvider(VectorDBInterface):
                 "text":batch_texts[x]
                 })
                 for x in range(len(batch_texts))
-
             ]
             try:
                 _ = self.client.upload_records(collection_name=collection_name,
                                             records = batch_records)
             except Exception as e :
-                self.logger.error("Error while inserting batch")
+                # CHANGE 1: Print the actual error message so you can debug it!
+                self.logger.error(f"Error while inserting batch: {str(e)}") 
                 return False
+                
+        # CHANGE 2: Must return True when the loop finishes successfully
+        return True
     
-    def search_by_vector(self, collection_name: str, vector: List, limit: int = 5):
-        return self.client.search(
-            collection_name= collection_name,
-            query_vector = vector,
-            limit = limit
+def search_by_vector(self, collection_name: str, vector: List, limit: int = 5):
+    return self.client.query_points(
+        collection_name=collection_name,
+        query=vector,
+        limit=limit
         )

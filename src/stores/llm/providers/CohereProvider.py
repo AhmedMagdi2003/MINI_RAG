@@ -72,17 +72,12 @@ class CohereProvider(LLMInterface):
             
         self.logger.info(f"Embedding text with model_id: {self.embedding_model_id}, input_type: {document_type}")
         
-        # 1. Map internal DocumentTypeEnum to valid Cohere v3 input_types
-        cohere_input_type = "search_query"
-        if document_type == DocumentTypeEnum.DOCUMENT.value:
-            cohere_input_type = "search_document"
-
         try:
             # 2. Use 'texts' with a flat list of strings and pass the mapped input_type
             response = self.client.embed(
                 texts=[self.process_text(text)],
                 model=self.embedding_model_id,
-                input_type=cohere_input_type,
+                input_type=document_type,
                 embedding_types=["float"] # Explicitly specify to return float arrays
             )
         except Exception as e:

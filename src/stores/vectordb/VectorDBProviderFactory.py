@@ -1,5 +1,5 @@
 from .VectorDBEnums import VectorDBEnums,DistanceMethodEnums
-from .providers import QdrantDBProvider
+from .providers.QdrantDBProvider import QdrantDBProvider
 from helpers.config import Settings
 from controllers.BaseController import BaseController
 class VectorDBProviderFactory:

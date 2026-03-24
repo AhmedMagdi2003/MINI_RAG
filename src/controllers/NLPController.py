@@ -52,9 +52,8 @@ class NLPController(BaseController):
             embedding_size=self.embedding_client.embedding_model_size,
             do_reset=do_reset,
         )
-
-        # step4: insert into vector db
-        _ = self.vectordb_client.insert_many(
+    # step4: insert into vector db
+        is_inserted = self.vectordb_client.insert_many(
             collection_name=collection_name,
             texts=texts,
             metadata=metadata,
@@ -62,16 +61,20 @@ class NLPController(BaseController):
             record_ids=chunks_ids,
         )
 
+        # CHANGE 3: Stop assuming success. Return False if insertion failed.
+        if is_inserted is False:
+            return False
+
         return True
 
-    def search_vector_db_collection(self, project: Project, text: str, limit: int = 10):
+    def search_vector_db_collection(self, project: Project, text: str, limit: int = 5 ):
 
         # step1: get collection name
         collection_name = self.create_collection_name(project_id=project.project_id)
 
         # step2: get text embedding vector
         vector = self.embedding_client.embed_text(text=text, 
-                                                 document_type=DocumentTypeEnum.DOCUMENT.value)
+        document_type=DocumentTypeEnum.QUERY.value)
 
         if not vector or len(vector) == 0:
             return False
@@ -86,7 +89,9 @@ class NLPController(BaseController):
         if not results:
             return False
 
-        return results
+        return  json.loads(
+            json.dumps(results, default=lambda x: x.__dict__)
+        )
     
 '''
 def answer_rag_question(self, project: Project, query: str, limit: int = 10):
