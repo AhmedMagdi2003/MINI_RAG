@@ -7,8 +7,7 @@ from typing import List
 
 class QdrantDBProvider(VectorDBInterface):
 
-    def __init__(self,db_path:str,distance_method:str):
-
+    def __init__(self, db_path: str, distance_method: str):
         self.client = None
         self.db_path = db_path
         self.distance_method = None
@@ -17,7 +16,11 @@ class QdrantDBProvider(VectorDBInterface):
             self.distance_method = models.Distance.COSINE
         elif distance_method == DistanceMethodEnums.DOT.value:
             self.distance_method = models.Distance.DOT
+
         self.logger = logging.getLogger(__name__)
+
+        # Automatically connect during initialization
+        self.connect()
 
     def connect(self,):
         self.client = QdrantClient(self.db_path)
@@ -57,9 +60,11 @@ class QdrantDBProvider(VectorDBInterface):
             _ = self.client.upload_records(
                 collection_name=collection_name,
                 records = {
-                    models.Record{vector=vector,payload={'metadata':metadata,
-                                                        "text":text}}
-                }
+                    models.Record(id=[record_id],
+                                vector=vector,
+                                payload={'metadata':metadata,
+                                "text":text}
+                    )}
         )
         except Exception as e:
             self.logger.error("Error while inserting batch")
@@ -76,13 +81,15 @@ class QdrantDBProvider(VectorDBInterface):
             batch_texts = texts[i:batch_end]
             batch_vectors = vectors[i:batch_end]
             batch_metadata = metadata[i:batch_end]
+            batch_record_ids = record_ids[i:batch_end]
 
             batch_records = [
-                models.Record{vector=batch_vectors[x]
+                models.Record(id = batch_record_ids[x]
+                ,vector=batch_vectors[x]
                 ,payload={
                 'metadata':batch_metadata[x],
                 "text":batch_texts[x]
-                }}
+                })
                 for x in range(len(batch_texts))
 
             ]

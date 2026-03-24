@@ -9,3 +9,6 @@ class ResponseSignal(Enum):
     PROCESSING_FAILED = "processing failed"
     PROCESSING_SUCCES= 'processing successed'
     NO_FILES_ERROR = 'No files found'
+    PROJECT_NOT_FOUND_ERROR = "Project not found"
+    INSERT_INTO_VECTORDB_ERROR= "insert into vectordb error"
+    INSERT_INTO_VECTORDB_SUCCESS = "sucsses inserted chuncks"

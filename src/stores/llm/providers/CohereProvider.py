@@ -1,8 +1,7 @@
 from ..LLMInterface import LLMInterface
-from ..LLMEnums import COHEREnums
+from ..LLMEnums import COHEREnums, DocumentTypeEnum
 import logging
 import cohere
-co = cohere.ClientV2()
 class CohereProvider(LLMInterface):
     def __init__(self, api_key: str,
                 default_input_max_characters: int = 1000,
@@ -17,7 +16,7 @@ class CohereProvider(LLMInterface):
         self.generating_model_id = None
         self.embedding_model_id  = None
         self.embedding_model_size = None
-        self.client = cohere.V2(api_key=self.api_key) 
+        self.client = cohere.ClientV2(api_key=self.api_key) 
 
         self.logger = logging.getLogger(__name__)
     
@@ -62,19 +61,23 @@ class CohereProvider(LLMInterface):
             return None
         return response.message.content[0].text
 
-    def embed_text(self, text: str, documnet_type: str = 'search_query'):
+    def embed_text(self, text: str, documnet_type: str = DocumentTypeEnum.QUERY.value):
         if not self.client:
             self.logger.error("OpenAI client was not set")
 
         if not self.embedding_model_id:
             self.logger.error("Embedding model for OpenAI want not set")       
             
-        co = self.client.ClientV2()
-        response = co.embed(
+        self.logger.info(f"Embedding text with model_id: {self.embedding_model_id}, input_type: {documnet_type}")
+        # Validate input_type for the embedding model
+        valid_input_types = ['document', 'query']  # Replace with actual valid types for the model
+        if documnet_type not in valid_input_types:
+            self.logger.error(f"Invalid input_type '{documnet_type}' for model '{self.embedding_model_id}'.")
+            return None
+        response = self.client.embed(
         inputs=self.construct_embed_text(self.process_text(text)),
         model=self.embedding_model_id,
-        input_type=documnet_type,
-        embedding_types=["float"],
+        input_type=DocumentTypeEnum.QUERY.value
         )
         if not response or not response.embeddings or not response.embeddings.floats:
             self.logger.error("Error while embedding text with CoHere")
