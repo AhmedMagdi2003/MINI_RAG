@@ -57,20 +57,26 @@ class QdrantDBProvider(VectorDBInterface):
             self.logger.error("Can't insert new record to non-existed collection")
             return False
         try:
-            _ = self.client.upload_records(
+            # CHANGE 1: Use upsert and PointStruct instead of upload_records and Record
+            _ = self.client.upsert(
                 collection_name=collection_name,
-                records = {
-                    models.Record(id=[record_id],
-                                vector=vector,
-                                payload={'metadata':metadata,
-                                "text":text}
-                    )}
-        )
+                points=[
+                    models.PointStruct(
+                        id=record_id, # Fixed list bracket bug here too
+                        vector=vector,
+                        payload={
+                            'metadata': metadata,
+                            "text": text
+                        }
+                    )
+                ]
+            )
         except Exception as e:
-            self.logger.error("Error while inserting batch")
+            self.logger.error(f"Error while inserting single record: {str(e)}")
             return False
         return True
-def insert_many(self, collection_name: str, texts: List, vectors: List, metadata: List = None, record_ids: List = None, batch_size: int = 50):
+
+    def insert_many(self, collection_name: str, texts: List, vectors: List, metadata: List = None, record_ids: List = None, batch_size: int = 50):
         if metadata is None:
             metadata = [None] *len(texts)
         if record_ids is None:
@@ -83,28 +89,31 @@ def insert_many(self, collection_name: str, texts: List, vectors: List, metadata
             batch_metadata = metadata[i:batch_end]
             batch_record_ids = record_ids[i:batch_end]
 
+            # CHANGE 2: Use PointStruct instead of Record
             batch_records = [
-                models.Record(id = batch_record_ids[x]
-                ,vector=batch_vectors[x]
-                ,payload={
-                'metadata':batch_metadata[x],
-                "text":batch_texts[x]
-                })
+                models.PointStruct(
+                    id=batch_record_ids[x],
+                    vector=batch_vectors[x],
+                    payload={
+                        'metadata': batch_metadata[x],
+                        "text": batch_texts[x]
+                    }
+                )
                 for x in range(len(batch_texts))
             ]
             try:
-                _ = self.client.upload_records(collection_name=collection_name,
-                                            records = batch_records)
+                # CHANGE 3: Use upsert instead of upload_records, and 'points=' instead of 'records='
+                _ = self.client.upsert(
+                    collection_name=collection_name,
+                    points=batch_records
+                )
             except Exception as e :
-                # CHANGE 1: Print the actual error message so you can debug it!
                 self.logger.error(f"Error while inserting batch: {str(e)}") 
                 return False
                 
-        # CHANGE 2: Must return True when the loop finishes successfully
         return True
-    
-def search_by_vector(self, collection_name: str, vector: List, limit: int = 5):
-    return self.client.query_points(
+    def search_by_vector(self, collection_name: str, vector: List, limit: int = 5):
+        return self.client.query_points(
         collection_name=collection_name,
         query=vector,
         limit=limit
