@@ -118,13 +118,14 @@ class QdrantDBProvider(VectorDBInterface):
         query=vector,
         limit=limit
         )
-        if results is None:
-            return None
+        if results is None or not results.points:
+            return []
         
-        return[ [
+        # Removed the extra [ ] wrapping the comprehension
+        return [
             RetrievedDocument(**{
                 "score" : result.score,
                 "text": result.payload['text']
             })
             for result in results.points
-        ]]
+        ]
