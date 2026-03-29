@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     VECTOR_DB_BACKEND: str = None
     VECTOR_DB_PATH: str = None
     VECTOR_DB_DISTANCE_METHOD: Optional[str] = None
+    PRIMARY_LANG: str = 'en'
+    DEFAULT_LANG: str = 'en'
     @property
     def MONGODB_URL(self) -> str:
         return f"mongodb://{self.MONGODB_USERNAME}:{self.MONGODB_PASSWORD}@{self.MONGODB_HOST}:{self.MONGODB_PORT}"
