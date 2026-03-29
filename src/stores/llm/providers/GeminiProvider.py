@@ -1,8 +1,8 @@
 from ..LLMInterface import LLMInterface
-from ..LLMEnums import DocumentTypeEnum
+from ..LLMEnums import DocumentTypeEnum,GeminiEnums
 import google.generativeai as genai
 import logging
-
+import time
 class GeminiProvider(LLMInterface):
 
     def __init__(self, api_key: str,
@@ -22,7 +22,7 @@ class GeminiProvider(LLMInterface):
         # Configure the Gemini client globally
         if self.api_key:
             genai.configure(api_key=self.api_key)
-
+        self.enums = GeminiEnums
         self.logger = logging.getLogger(__name__)
 
     def set_generating_model(self, model_id: str):
@@ -95,7 +95,8 @@ class GeminiProvider(LLMInterface):
             response = genai.embed_content(
                 model=self.embedding_model_id,
                 content=self.process_text(text),
-                task_type=task_type
+                task_type=task_type,
+                output_dimensionality=self.embedding_model_size
             )
             
             if response and 'embedding' in response:
@@ -113,18 +114,39 @@ class GeminiProvider(LLMInterface):
         task_type = "RETRIEVAL_DOCUMENT" if document_type == DocumentTypeEnum.DOCUMENT.value else "RETRIEVAL_QUERY"
         processed_texts = [self.process_text(text) for text in texts]
         
-        try:
-            all_embeddings = []
-            # Gemini safely handles batches of up to 100 requests at a time
-            for i in range(0, len(processed_texts), 100):
-                batch = processed_texts[i:i+100]
-                response = genai.embed_content(
-                    model=self.embedding_model_id,
-                    content=batch,
-                    task_type=task_type
-                )
-                all_embeddings.extend(response['embedding'])
-            return all_embeddings
-        except Exception as e:
-            self.logger.error(f"Error while embedding batch with Gemini: {str(e)}")
-            return None
+        all_embeddings = []
+        # Reduce batch size to 50 to safely stay under the 100-chunk limit
+        batch_size = 50 
+        
+        for i in range(0, len(processed_texts), batch_size):
+            batch = processed_texts[i:i+batch_size]
+            
+            # Retry logic: If we hit a 429, wait 60 seconds and try again
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    response = genai.embed_content(
+                        model=self.embedding_model_id,
+                        content=batch,
+                        task_type=task_type,
+                        output_dimensionality=self.embedding_model_size
+                    )
+                    all_embeddings.extend(response['embedding'])
+                    break # Success! Break out of the retry loop
+                    
+                except Exception as e:
+                    error_msg = str(e)
+                    if "429" in error_msg or "Quota exceeded" in error_msg:
+                        self.logger.warning(f"Gemini API rate limit hit. Sleeping for 60 seconds... (Attempt {attempt+1}/{max_retries})")
+                        time.sleep(60) # Pause the application for 60 seconds
+                        if attempt == max_retries - 1:
+                            self.logger.error("Max retries reached. Failing batch.")
+                            return None
+                    else:
+                        self.logger.error(f"Error while embedding batch with Gemini: {error_msg}")
+                        return None
+            
+            # A tiny pause between successful batches just to be safe
+            time.sleep(1)
+            
+        return all_embeddings

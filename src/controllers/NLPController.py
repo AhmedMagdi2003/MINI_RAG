@@ -40,11 +40,16 @@ class NLPController(BaseController):
         # step2: manage items
         texts = [ c.chunk_text for c in chunks ]
         metadata = [ c.chunk_metadata for c in  chunks]
-        vectors = [
-            self.embedding_client.embed_text(text=text, 
-            document_type=DocumentTypeEnum.DOCUMENT.value)
-            for text in texts
-        ]
+        
+        # FIX: Use embed_batch instead of a loop to prevent Rate Limit crashes!
+        vectors = self.embedding_client.embed_batch(
+            texts=texts, 
+            document_type=DocumentTypeEnum.DOCUMENT.value
+        )
+
+        # Safety Check: If batching failed, abort the push immediately
+        if not vectors or len(vectors) != len(texts):
+            return False
 
         # step3: create collection if not exists
         _ = self.vectordb_client.create_collection(
