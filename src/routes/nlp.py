@@ -117,6 +117,6 @@ async def search_vector_db_collection (request:Request,project_id:str,search_req
     return JSONResponse(
         content={
             "signal": ResponseSignal.VECTORDB_SEARCH_SUCCESS.value,
-            "results":results
+            "results":[result.dict() for result in results]
         }
     )
