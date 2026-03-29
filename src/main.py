@@ -21,15 +21,16 @@ async def startup_span():
     vectordb_factory_provider = VectorDBProviderFactory(settings)
     app.vectordb_client = vectordb_factory_provider.create(provider=settings.VECTOR_DB_BACKEND)
     
+    app.template_parser = TemplateParser(
+        language=settings.PRIMARY_LANG,
+        default_language=settings.DEFAULT_LANG,
+    )
 #    app.vectordb_client.connect()
 async def shutdown_span():
     app.mongo_conn.close()
     app.vectordb_client.disconnect()
 
-    app.template_parser = TemplateParser(
-        language=settings.PRIMARY_LANG,
-        default_language=settings.DEFAULT_LANG,
-    )
+
 
 #app.router.lifespan.on_startup.append(startup_span)
 #app.router.lifespan.on_shutdown.append(shutdown_span)

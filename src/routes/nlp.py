@@ -112,7 +112,7 @@ async def search_vector_db_collection (request:Request,project_id:str,search_req
     results = nlp_controller.search_vector_db_collection(project=project,text=search_request.text,limit=search_request.limit)
 
     if not results:
-        return JSONResponse(
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
         content={
             "signal": ResponseSignal.VECTORDB_SEARCH_ERROR.value,
         }
