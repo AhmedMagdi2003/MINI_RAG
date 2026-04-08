@@ -10,11 +10,11 @@ class Settings(BaseSettings):
     FILE_ALLOWED_EXTENSIONS: Union[List[str], str] = Field(default=["txt", "pdf", "docx"])
     FILE_MAX_SIZE: int = 10485760  # 10MB
     FILE_DEFAULT_CHUNK_SIZE: int = 1024
-    MONGODB_USERNAME: str = "admin"
-    MONGODB_PASSWORD: str = "admin"
-    MONGODB_HOST: str = "localhost"
-    MONGODB_PORT: int = 27007
-    MONGODB_DATABASE: str = "mini_rag"
+    POSTGRES_USERNAME: str ="postgres"
+    POSTGRES_PASSWORD: str ="PASSWORD"
+    POSTGRES_HOST: str ="localhost"
+    POSTGRES_PORT: int =5432
+    POSTGRES_MAIN_DATABASE: str ="minirag"
     GENERATION_BACKEND: Optional[str] = None
     EMBEDDING_BACKEND: Optional[str] = None
     GENERATION_MODEL_ID: Optional[str] = None
