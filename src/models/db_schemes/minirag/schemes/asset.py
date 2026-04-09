@@ -5,11 +5,11 @@ from sqlalchemy.orm import relationship
 import uuid
 class Asset(SQLAlchemyBase):
 
-    __tabelname__ = "assets"
+    __tablename__ = "assets"
 
     asset_id = Column(Integer,primary_key=True,autoincrement=True)
-    asset_project_id = Column(Integer,ForeignKey("Projects.proejct_id"),nullable=False)
-    asset_uuid = Column(UUID,default=uuid.uuid5, unique=True,nullable=False)
+    asset_project_id = Column(Integer,ForeignKey("projects.project_id"),nullable=False)
+    asset_uuid = Column(UUID,default=uuid.uuid4, unique=True,nullable=False)
 
     asset_type = Column(String,nullable=False)
     asset_name = Column(String,nullable=False)

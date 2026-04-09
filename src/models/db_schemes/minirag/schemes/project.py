@@ -4,13 +4,12 @@ from sqlalchemy.dialects.postgresql import UUID
 import uuid
 class Project(SQLAlchemyBase):
 
-    __tabelname__ = "projects"
+    __tablename__ = "projects"
 
     project_id = Column(Integer,primary_key=True,autoincrement=True)
 
-    project_uuid = Column(UUID,default=uuid.uuid5, unique=True,nullable=False)
+    project_uuid = Column(UUID,default=uuid.uuid4, unique=True,nullable=False)
 
     created_at = Column(DateTime(timezone=True),server_default=func.now(),nullable=False)
     updated_at = Column(DateTime(timezone=True),onupdate=func.now(),nullable=True)
 
-    

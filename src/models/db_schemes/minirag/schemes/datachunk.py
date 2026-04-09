@@ -5,11 +5,11 @@ from sqlalchemy.orm import relationship
 import uuid
 from pydantic import BaseModel
 
-class DAtaChunk(SQLAlchemyBase):
-    __tabelname__ = "chunks"
+class DataChunk(SQLAlchemyBase):
+    __tablename__ = "chunks"
 
     chunk_id = Column(Integer,primary_key=True,autoincrement=False)
-    chunk_uuid = Column(UUID,default=uuid.uuid5, unique=False,nullable=False)
+    chunk_uuid = Column(UUID,default=uuid.uuid4, unique=False,nullable=False)
     chunk_order = Column(Integer,unique=False)
 
     chunk_text = Column(String,nullable=False)
