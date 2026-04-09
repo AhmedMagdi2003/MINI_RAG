@@ -30,15 +30,9 @@ async def startup_span():
         language=settings.PRIMARY_LANG,
         default_language=settings.DEFAULT_LANG,
     )
-#    app.vectordb_client.connect()
 async def shutdown_span():
-    app.mongo_conn.close()
+    app.db_engine.dispose()
     app.vectordb_client.disconnect()
-
-
-
-#app.router.lifespan.on_startup.append(startup_span)
-#app.router.lifespan.on_shutdown.append(shutdown_span)
 
 app.on_event("startup")(startup_span)
 app.on_event("shutdown")(shutdown_span)

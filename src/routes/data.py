@@ -52,7 +52,7 @@ async def upload_data(request:Request,project_id : int, file: UploadFile,
     )
 
     asset_resources = Asset(
-        asset_project_id= project.id if project.id is not None else ObjectId(),
+        asset_project_id= project.project_id if project.project_id is not None else ObjectId(),
         asset_type = AssetTypeEnums.FILE.value,
         asset_name = file_id,
         asset_size = os.path.getsize(file_path),
@@ -62,8 +62,8 @@ async def upload_data(request:Request,project_id : int, file: UploadFile,
 
     return JSONResponse(
                         content={"Signal":ResponseSignal.FILE_UPLOAD_SUCCESS.value,
-                        'file_id':str(asset_record.id ),
-                        #'project_id': str(project.id) # i don't used to see it 
+                        'file_id':str(asset_record.asset_project_id),
+                        #'project_id': str(project.project_id) # i don't used to see it 
                         }
                         )
 
@@ -85,7 +85,7 @@ async def Process_endpoint(request:Request, project_id: int,
     do_reset = process_request.do_reset
     chunk_model = ChunkModel(db_client=request.app.db_client)
     if do_reset ==1:
-        await chunk_model.delete_project_by_projectid(project_id=project.id) # type: ignore
+        await chunk_model.delete_chunks_by_project_id(project_id=project.project_id) # type: ignore
 
 
     project_files_ids = {}
@@ -97,7 +97,7 @@ async def Process_endpoint(request:Request, project_id: int,
         # file_id is the MongoDB ObjectId, need to get the actual asset_name
         try:
             asset_record = await asset_model.get_asset_record(
-                asset_project_id=str(project.id),
+                asset_project_id=str(project.project_id),
                 asset_name=process_request.file_id
             )
             if asset_record:
@@ -106,7 +106,7 @@ async def Process_endpoint(request:Request, project_id: int,
                 # Try treating it as ObjectId and search by ID instead
                 asset = await asset_model.collection.find_one({
                     "_id": ObjectId(process_request.file_id) if isinstance(process_request.file_id, str) else process_request.file_id,
-                    "asset_project_id": ObjectId(project.id) if isinstance(project.id, str) else project.id
+                    "asset_project_id": ObjectId(project.project_id) if isinstance(project.project_id, str) else project.project_id
                 })
                 if asset:
                     project_files_ids = {asset.get('_id'): asset.get('asset_name')}
@@ -115,10 +115,10 @@ async def Process_endpoint(request:Request, project_id: int,
             return JSONResponse(status_code=400,
                                 content={'Signal': ResponseSignal.NO_FILES_ERROR.value})
     else:
-        project_files = await asset_model.get_all_project_assets(asset_project_id=str(project.id),
+        project_files = await asset_model.get_all_project_assets(asset_project_id=project.project_id,
                                                                 asset_type=AssetTypeEnums.FILE.value)
         
-        project_files_ids = {record.asset_project_id: record.asset_name for record in project_files}
+        project_files_ids = {record.asset_id: record.asset_name for record in project_files}
 
     if len(project_files_ids) == 0 :
             return JSONResponse(
@@ -152,7 +152,7 @@ async def Process_endpoint(request:Request, project_id: int,
         
         file_chunks_records = [
             DataChunk(
-                chunk_project_id = project.id, # type: ignore
+                chunk_project_id = project.project_id, # type: ignore
                 chunk_order= i+1,
                 chunk_metadata= chunk.metadata,
                 chunk_text= chunk.page_content,
@@ -162,7 +162,7 @@ async def Process_endpoint(request:Request, project_id: int,
         ]
         chunk_model = await ChunkModel.create_instance(db_client=request.app.db_client)
 
-        no_records = await chunk_model.insert_many_chunk(chunks=file_chunks_records)
+        no_records = await chunk_model.insert_many_chunks(chunks=file_chunks_records)
         no_files  +=1
 
     return JSONResponse(
