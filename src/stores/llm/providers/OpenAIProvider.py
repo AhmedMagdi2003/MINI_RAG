@@ -2,7 +2,6 @@ from ..LLMInterface import LLMInterface
 from ..LLMEnums import OpenAIEnums
 from openai import OpenAI
 import logging
-
 class OpenAIProvider(LLMInterface):
 
     def __init__(self, api_key: str, api_url: str = None,  # type: ignore
@@ -39,7 +38,7 @@ class OpenAIProvider(LLMInterface):
         # FIX: Use the actual role passed to the function, and format content properly
         return {
             "role": role,
-            "content": self.process_text(prompt)
+            "content": prompt
         }
 
     def process_text(self, text):

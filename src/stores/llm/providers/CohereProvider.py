@@ -94,10 +94,11 @@ class CohereProvider(LLMInterface):
     def construct_prompt(self, prompt: str, role: str):
         return {
             "role": COHEREnums.USER.value,
-            "content": [{"type": "text", "text": self.process_text(prompt)}]
+            "content": [{"type": "text", "text":prompt}]
         }
     
     def construct_embed_text(self,text:str):
         return [{
-            "content":{"type": "text", "text": text}
+            "content":{"type": "text",
+                        "text": text}
         }]

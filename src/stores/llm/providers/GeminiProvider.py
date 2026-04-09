@@ -36,12 +36,11 @@ class GeminiProvider(LLMInterface):
         return text[:self.default_input_max_characters].strip()
 
     def construct_prompt(self, prompt: str, role: str):
-        # Gemini strictly uses 'user' and 'model' roles. 
         # We map 'system' or 'user' to 'user', and 'assistant' to 'model'.
         gemini_role = "model" if role == "assistant" else "user"
         return {
             "role": gemini_role,
-            "parts": [self.process_text(prompt)]
+            "parts": [prompt]
         }
 
     def generate_text(self, prompt: str, chat_history: list = None, temperature: float = None, max_output_tokens: int = None):
