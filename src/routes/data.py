@@ -19,7 +19,7 @@ data_router = APIRouter(prefix='/api/v1/data',
                         tags=['api_v1','data'])
 
 @data_router.post('/upload/{project_id}')
-async def upload_data(request:Request,project_id : str, file: UploadFile,
+async def upload_data(request:Request,project_id : int, file: UploadFile,
                 app_settings: Settings = Depends(get_settings)):
 
     project_model =  await ProjectModel.create_instance(db_client=request.app.db_client)
@@ -69,7 +69,7 @@ async def upload_data(request:Request,project_id : str, file: UploadFile,
 
 # data process
 @data_router.post('/process/{project_id}')
-async def Process_endpoint(request:Request, project_id: str,
+async def Process_endpoint(request:Request, project_id: int,
                             process_request:ProcessRequest
                             ):
     
@@ -118,7 +118,7 @@ async def Process_endpoint(request:Request, project_id: str,
         project_files = await asset_model.get_all_project_assets(asset_project_id=str(project.id),
                                                                 asset_type=AssetTypeEnums.FILE.value)
         
-        project_files_ids = {record.id: record.asset_name for record in project_files}
+        project_files_ids = {record.asset_project_id: record.asset_name for record in project_files}
 
     if len(project_files_ids) == 0 :
             return JSONResponse(
