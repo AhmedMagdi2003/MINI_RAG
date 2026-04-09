@@ -1,0 +1,31 @@
+from .minirag_base import SQLAlchemyBase
+from sqlalchemy import Column, Integer, DateTime,func, String,ForeignKey,Index
+from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.orm import relationship
+import uuid
+from pydantic import BaseModel
+
+class DAtaChunk(SQLAlchemyBase):
+    __tabelname__ = "chunks"
+
+    chunk_id = Column(Integer,primary_key=True,autoincrement=False)
+    chunk_uuid = Column(UUID,default=uuid.uuid5, unique=False,nullable=False)
+    chunk_order = Column(Integer,unique=False)
+
+    chunk_text = Column(String,nullable=False)
+    chunk_metadata = Column(JSONB,nullable=True)
+
+    chunk_asset_id = Column(Integer,ForeignKey("assets.asset_id"),nullable=False)
+    chunk_project_id = Column(Integer,ForeignKey("projects.project_id"),nullable=False)
+
+    project = relationship("Project",back_populates="chunks")
+    asset = relationship("Asset",back_populates="chunks")
+
+    __table_args__ = (
+        Index("ix_chunk_project_id",chunk_project_id),
+        Index("ix_chunk_asset_id",chunk_asset_id),
+        Index("ix_chunk_asset_order", chunk_asset_id, chunk_order)
+    )   
+class RetrievedDocument(BaseModel):
+    text: str
+    score: float
