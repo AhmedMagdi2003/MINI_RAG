@@ -8,7 +8,7 @@ from pydantic import BaseModel
 class DataChunk(SQLAlchemyBase):
     __tablename__ = "chunks"
 
-    chunk_id = Column(Integer,primary_key=True,autoincrement=False)
+    chunk_id = Column(Integer,primary_key=True,autoincrement=True)
     chunk_uuid = Column(UUID,default=uuid.uuid4, unique=False,nullable=False)
     chunk_order = Column(Integer,unique=False)
 

@@ -11,7 +11,6 @@ from models.ProjectModel import ProjectModel
 from models.ChunkModel import ChunkModel
 from models.db_schemes import DataChunk, Asset
 from models.AssetModel import AssetModel
-from bson import ObjectId
 from models.enums.AssetTypeEnums import AssetTypeEnums
 logger = logging.getLogger('uvicorn.error')
 
@@ -52,7 +51,7 @@ async def upload_data(request:Request,project_id : int, file: UploadFile,
     )
 
     asset_resources = Asset(
-        asset_project_id= project.project_id if project.project_id is not None else ObjectId(),
+        asset_project_id= project.project_id,
         asset_type = AssetTypeEnums.FILE.value,
         asset_name = file_id,
         asset_size = os.path.getsize(file_path),
@@ -94,22 +93,19 @@ async def Process_endpoint(request:Request, project_id: int,
     )
     
     if process_request.file_id:
-        # file_id is the MongoDB ObjectId, need to get the actual asset_name
         try:
+            # Pass project_id as is (integer), not str()
             asset_record = await asset_model.get_asset_record(
-                asset_project_id=str(project.project_id),
+                asset_project_id=project.project_id, 
                 asset_name=process_request.file_id
             )
+            
             if asset_record:
-                project_files_ids = {asset_record.id: asset_record.asset_name}
+                # Use asset_id instead of id
+                project_files_ids = {asset_record.asset_id: asset_record.asset_name}
             else:
-                # Try treating it as ObjectId and search by ID instead
-                asset = await asset_model.collection.find_one({
-                    "_id": ObjectId(process_request.file_id) if isinstance(process_request.file_id, str) else process_request.file_id,
-                    "asset_project_id": ObjectId(project.project_id) if isinstance(project.project_id, str) else project.project_id
-                })
-                if asset:
-                    project_files_ids = {asset.get('_id'): asset.get('asset_name')}
+                return JSONResponse(status_code=400,
+                                    content={'Signal': ResponseSignal.NO_FILES_ERROR.value})
         except Exception as e:
             logger.error(f"Error retrieving asset: {e}")
             return JSONResponse(status_code=400,
@@ -156,7 +152,7 @@ async def Process_endpoint(request:Request, project_id: int,
                 chunk_order= i+1,
                 chunk_metadata= chunk.metadata,
                 chunk_text= chunk.page_content,
-                chunk_asset_id=ObjectId(asset_id) if isinstance(asset_id, str) else asset_id  # type: ignore
+                chunk_asset_id= int(asset_id)
             )
             for i ,chunk in enumerate(file_chunks)
         ]

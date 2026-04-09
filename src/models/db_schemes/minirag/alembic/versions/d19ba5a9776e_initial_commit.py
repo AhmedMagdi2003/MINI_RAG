@@ -1,8 +1,8 @@
-"""Initial commit
+"""initial commit
 
-Revision ID: 49da9f0765bc
+Revision ID: d19ba5a9776e
 Revises: 
-Create Date: 2026-04-09 19:56:21.381853
+Create Date: 2026-04-10 00:30:52.675643
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '49da9f0765bc'
+revision: str = 'd19ba5a9776e'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -44,7 +44,7 @@ def upgrade() -> None:
     op.create_index('ix_asset_project_id', 'assets', ['asset_project_id'], unique=False)
     op.create_index('ix_asset_type', 'assets', ['asset_type'], unique=False)
     op.create_table('chunks',
-    sa.Column('chunk_id', sa.Integer(), autoincrement=False, nullable=False),
+    sa.Column('chunk_id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('chunk_uuid', sa.UUID(), nullable=False),
     sa.Column('chunk_order', sa.Integer(), nullable=True),
     sa.Column('chunk_text', sa.String(), nullable=False),

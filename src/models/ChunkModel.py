@@ -1,7 +1,6 @@
 from .BaseDataModel import BaseDataModel
 from .db_schemes import DataChunk
 from .enums.DataBaseEnums import DataBaseEnums
-from bson.objectid import ObjectId
 from pymongo import InsertOne
 from sqlalchemy.future import select
 from sqlalchemy import func, delete
@@ -43,16 +42,19 @@ class ChunkModel(BaseDataModel):
             await session.commit()
         return len(chunks)
 
-    async def delete_chunks_by_project_id(self, project_id: ObjectId):
+    async def delete_chunks_by_project_id(self, project_id: int):
         async with self.db_client() as session:
             stmt = delete(DataChunk).where(DataChunk.chunk_project_id == project_id)
             result = await session.execute(stmt)
             await session.commit()
         return result.rowcount
     
-    async def get_poject_chunks(self, project_id: ObjectId, page_no: int=1, page_size: int=50):
+    async def get_poject_chunks(self, project_id: int, page_no: int=1, page_size: int=50):
         async with self.db_client() as session:
-            stmt = select(DataChunk).where(DataChunk.chunk_project_id == project_id).offset((page_no - 1) * page_size).limit(page_size)
+            stmt = select(DataChunk).where(
+                DataChunk.chunk_project_id == project_id
+            ).order_by(DataChunk.chunk_id).offset((page_no - 1) * page_size).limit(page_size)
+            
             result = await session.execute(stmt)
             records = result.scalars().all()
         return records
