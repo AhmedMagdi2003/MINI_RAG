@@ -1,98 +1,78 @@
-# mini-rag
+# MINI_RAG
 
-This is a minimal implementation of the RAG model for question answering.
+An API service for ingesting documents, indexing their content, and answering natural-language questions through retrieval-augmented generation (RAG). The current application code exposes separate data and NLP routes and constructs its language-model, vector-store, and relational-database integrations through provider/configuration modules.
 
-## The Course
+> **Configuration note:** The repository's older README describes MongoDB/Motor. The inspected application startup instead initializes PostgreSQL through SQLAlchemy, and the vector-store factory supports local Qdrant. The checked-in Docker Compose file includes MongoDB and pgvector/PostgreSQL services, while the current application defaults point to PostgreSQL and local Qdrant. Confirm the intended service setup before treating that Compose file as a complete deployment recipe.
 
-This is an educational project where all of the codes where explained (step by step) via a set of `Arabic` youtube videos. Please check the list:
+## Capabilities
 
-| # | Title                                    | Link                                                                                                 | Codes                                              |
-|---|------------------------------------------|------------------------------------------------------------------------------------------------------|----------------------------------------------------|
-| 1 | About the Course ماذا ولمـــاذا          | [Video](https://www.youtube.com/watch?v=Vv6e2Rb1Q6w&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj)         | NA                                                 |
-| 2 | What will we build ماذا سنبنى في المشروع | [Video](https://www.youtube.com/watch?v=_l5S5CdxE-Q&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj&index=2) | NA                                                 |
-| 3 | Setup your tools الأدوات الأساسية        | [Video](https://www.youtube.com/watch?v=VSFbkFRAT4w&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj&index=3) | NA                                                 |
-| 4 | Project Architecture                     | [Video](https://www.youtube.com/watch?v=Ei_nBwBbFUQ&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj&index=4) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-001) |
-| 5 | Welcome to FastAPI                       | [Video](https://www.youtube.com/watch?v=cpOuCdzN_Mo&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj&index=5) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-002) |
-| 6 | Nested Routes + Env Values               | [Video](https://www.youtube.com/watch?v=CrR2Bz2Y7Hw&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj&index=6) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-003) |
-| 7 | Uploading a File                         | [Video](https://www.youtube.com/watch?v=5alMKCbFqWs&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj&index=7) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-004) |
-| 8 | File Processing                         | [Video](https://www.youtube.com/watch?v=gQgr2iwtSBw) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-005) |
-| 9 | Docker - MongoDB - Motor                         | [Video](https://www.youtube.com/watch?v=2NOKWm0xJAk) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-006) |
-| 10 | Mongo Schemes and Models                        | [Video](https://www.youtube.com/watch?v=zgcnnMJXXV8) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-007) |
-| 11 | Mongo Indexing                        | [Video](https://www.youtube.com/watch?v=iO8FAmUVcjE) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-008) |
-| 12 | Data Pipeline Enhancements                        | [Video](https://www.youtube.com/watch?v=4x1DuezZBDU) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-008) |
-| 13 | Checkpoint-1                        | [Video](https://www.youtube.com/watch?v=7xIsZkCisPk) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-008) |
-| 14 | LLM Factory                        | [Video](https://www.youtube.com/watch?v=5TKRIFtIQAY) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-008) |
-| 15 | Vector DB Factory                        | [Video](https://www.youtube.com/watch?v=JtS9UkvF_10) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-009) |
-| 16 | Semantic Search                       | [Video](https://www.youtube.com/watch?v=V3swQKokJW8) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-010) |
-| 17 | Augmented Answers                       | [Video](https://www.youtube.com/watch?v=1Wx8BoM5pLU) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-011) |
-| 18 | Checkpoint-1 + Fix Issues                       | [Video](https://youtu.be/6zG4Idxldvg) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-012) |
-| 19 | Ollama Local LLM Server                       | [Video](https://youtu.be/-epZ1hAAtrs) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-012) |
+- Upload and process documents through the data routes.
+- Index document content and search it through the NLP routes.
+- Submit questions for retrieval-grounded answers.
+- Configure generation and embedding providers through environment settings.
+- Persist relational application data with PostgreSQL and use the configured vector store for retrieval.
 
+These are API capabilities; the repository does not establish a production-hosted UI or deployment.
+
+## Architecture
+
+```text
+Client
+  ├── data routes: upload and process documents
+  └── NLP routes: index, search, and answer
+          ├── language-model provider factory
+          ├── vector-store provider factory (Qdrant implementation)
+          └── PostgreSQL access through SQLAlchemy
+```
+
+The routes and provider factories are under `src/`. The current vector database factory supports Qdrant with a local persistence path. Available model providers and environment names should be taken from `src/.env.example` and the corresponding provider modules.
 
 ## Requirements
 
-- Python 3.8 or later
+- Python version compatible with the pinned dependencies in `requirements.txt`.
+- A PostgreSQL instance reachable using the database settings expected by the application.
+- Provider credentials/configuration for the selected model and embedding services, if using hosted providers.
+- Local Qdrant persistence configured for the current vector-store implementation.
 
-#### Install Python using MiniConda
+## Local setup
 
-1) Download and install MiniConda from [here](https://docs.anaconda.com/free/miniconda/#quick-command-line-install)
-2) Create a new environment using the following command:
-```bash
-$ conda create -n mini-rag python=3.8
-```
-3) Activate the environment:
-```bash
-$ conda activate mini-rag
-```
-
-### (Optional) Setup you command line interface for better readability
+From the repository root:
 
 ```bash
-export PS1="\[\033[01;32m\]\u@\h:\w\n\[\033[00m\]\$ "
+python -m venv .venv
+# Linux/macOS
+source .venv/bin/activate
+# Windows PowerShell: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
 ```
 
-### (Optional) Run Ollama Local LLM Server using Colab + Ngrok
+Copy `src/.env.example` to the environment file location loaded by the application, then set database connection values and the desired provider configuration. The example file is under `src/`; there is no root-level `.env.example` in the inspected tree. Do not commit secrets.
 
-- Check the [notebook](https://colab.research.google.com/drive/1KNi3-9KtP-k-93T3wRcmRe37mRmGhL9p?usp=sharing) + [Video](https://youtu.be/-epZ1hAAtrs)
+Prepare PostgreSQL and apply the repository's supported migrations before starting the API. Exact database initialization and Compose alignment should be confirmed against the current migration/configuration state; the checked-in Compose services do not directly match the application's local-Qdrant default.
 
-## Installation
-
-### Install the required packages
+Start the API from the repository root:
 
 ```bash
-$ pip install -r requirements.txt
+uvicorn src.main:app --reload --host 127.0.0.1 --port 5000
 ```
 
-### Setup the environment variables
+Open `http://127.0.0.1:5000/docs` to inspect the routes and request schemas exposed by the running app.
 
-```bash
-$ cp .env.example .env
-```
+## API usage
 
-Set your environment variables in the `.env` file. Like `OPENAI_API_KEY` value.
+Use the generated OpenAPI page to review the exact endpoints and payload schemas. The route groups cover document upload/processing and NLP indexing, search, and question answering. Provide documents using the upload schema, index processed content, then query the indexed material. Request and response field details should be treated as defined by the current route models rather than inferred from this summary.
 
-## Run Docker Compose Services
+## Configuration and operational notes
 
-```bash
-$ cd docker
-$ cp .env.example .env
-```
+- Default generation and embedding settings are examples, not production credentials or service guarantees.
+- The checked-in Compose file currently starts MongoDB and PostgreSQL/pgvector, but inspected startup code uses PostgreSQL and a local Qdrant store; confirm intended service wiring before relying on Compose.
+- Review provider implementations and model limits before selecting a deployment configuration.
+- No authentication, access-control, or production-hardening claims are made here.
 
-- update `.env` with your credentials
+## Project objective
 
+Provide a modular backend foundation for document-based question answering, with API routes separated from language-model and vector-store provider selection.
 
+## License
 
-```bash
-$ cd docker
-$ sudo docker compose up -d
-```
-
-## Run the FastAPI server
-
-```bash
-$ uvicorn main:app --reload --host 0.0.0.0 --port 5000
-```
-
-## POSTMAN Collection
-
-Download the POSTMAN collection from [/assets/mini-rag-app.postman_collection.json](/assets/mini-rag-app.postman_collection.json)
+See the repository's license file, if present.
