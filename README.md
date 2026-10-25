@@ -1,98 +1,43 @@
-# mini-rag
+# MINI_RAG
 
-This is a minimal implementation of the RAG model for question answering.
+**Bring your own documents and ask questions grounded in their content.** MINI_RAG is a modular API project that demonstrates a document-to-answer RAG experience, from ingestion and indexing to retrieval-backed question answering.
 
-## The Course
+[View the source](https://github.com/AhmedMagdi2003/MINI_RAG) · [Open the local API docs](http://127.0.0.1:5000/docs) after running the service
 
-This is an educational project where all of the codes where explained (step by step) via a set of `Arabic` youtube videos. Please check the list:
+## The project
 
-| # | Title                                    | Link                                                                                                 | Codes                                              |
-|---|------------------------------------------|------------------------------------------------------------------------------------------------------|----------------------------------------------------|
-| 1 | About the Course ماذا ولمـــاذا          | [Video](https://www.youtube.com/watch?v=Vv6e2Rb1Q6w&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj)         | NA                                                 |
-| 2 | What will we build ماذا سنبنى في المشروع | [Video](https://www.youtube.com/watch?v=_l5S5CdxE-Q&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj&index=2) | NA                                                 |
-| 3 | Setup your tools الأدوات الأساسية        | [Video](https://www.youtube.com/watch?v=VSFbkFRAT4w&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj&index=3) | NA                                                 |
-| 4 | Project Architecture                     | [Video](https://www.youtube.com/watch?v=Ei_nBwBbFUQ&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj&index=4) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-001) |
-| 5 | Welcome to FastAPI                       | [Video](https://www.youtube.com/watch?v=cpOuCdzN_Mo&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj&index=5) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-002) |
-| 6 | Nested Routes + Env Values               | [Video](https://www.youtube.com/watch?v=CrR2Bz2Y7Hw&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj&index=6) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-003) |
-| 7 | Uploading a File                         | [Video](https://www.youtube.com/watch?v=5alMKCbFqWs&list=PLvLvlVqNQGHCUR2p0b8a0QpVjDUg50wQj&index=7) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-004) |
-| 8 | File Processing                         | [Video](https://www.youtube.com/watch?v=gQgr2iwtSBw) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-005) |
-| 9 | Docker - MongoDB - Motor                         | [Video](https://www.youtube.com/watch?v=2NOKWm0xJAk) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-006) |
-| 10 | Mongo Schemes and Models                        | [Video](https://www.youtube.com/watch?v=zgcnnMJXXV8) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-007) |
-| 11 | Mongo Indexing                        | [Video](https://www.youtube.com/watch?v=iO8FAmUVcjE) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-008) |
-| 12 | Data Pipeline Enhancements                        | [Video](https://www.youtube.com/watch?v=4x1DuezZBDU) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-008) |
-| 13 | Checkpoint-1                        | [Video](https://www.youtube.com/watch?v=7xIsZkCisPk) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-008) |
-| 14 | LLM Factory                        | [Video](https://www.youtube.com/watch?v=5TKRIFtIQAY) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-008) |
-| 15 | Vector DB Factory                        | [Video](https://www.youtube.com/watch?v=JtS9UkvF_10) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-009) |
-| 16 | Semantic Search                       | [Video](https://www.youtube.com/watch?v=V3swQKokJW8) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-010) |
-| 17 | Augmented Answers                       | [Video](https://www.youtube.com/watch?v=1Wx8BoM5pLU) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-011) |
-| 18 | Checkpoint-1 + Fix Issues                       | [Video](https://youtu.be/6zG4Idxldvg) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-012) |
-| 19 | Ollama Local LLM Server                       | [Video](https://youtu.be/-epZ1hAAtrs) | [branch](https://github.com/bakrianoo/mini-rag/tree/tut-012) |
+The objective is to provide a small, inspectable foundation for document-based question answering. Data routes handle document operations; NLP routes expose indexing, search, and question-answering capabilities. Model and vector-store integrations are separated behind provider modules so the application can be configured without embedding every choice in the route layer.
 
+## What it demonstrates
 
-## Requirements
+- Document upload and processing through the API.
+- Indexing and semantic retrieval over document content.
+- Natural-language questions answered using retrieved context.
+- Configurable language-model and vector-store providers.
+- A FastAPI surface with generated OpenAPI documentation.
 
-- Python 3.8 or later
+## How the experience works
 
-#### Install Python using MiniConda
+Documents enter through the data API and are processed for indexing. A question is sent through the NLP API, which retrieves relevant indexed content and uses the configured language model to form a grounded response. The project is an API backend; the repository does not establish a hosted end-user interface or production deployment.
 
-1) Download and install MiniConda from [here](https://docs.anaconda.com/free/miniconda/#quick-command-line-install)
-2) Create a new environment using the following command:
-```bash
-$ conda create -n mini-rag python=3.8
-```
-3) Activate the environment:
-```bash
-$ conda activate mini-rag
-```
+## Try it locally
 
-### (Optional) Setup you command line interface for better readability
+Install the dependencies, configure the environment values in src/.env.example, and provide the database and model-provider settings required by the selected configuration. Start the API from the repository root:
 
-```bash
-export PS1="\[\033[01;32m\]\u@\h:\w\n\[\033[00m\]\$ "
-```
+~~~bash
+uvicorn src.main:app --reload --host 127.0.0.1 --port 5000
+~~~
 
-### (Optional) Run Ollama Local LLM Server using Colab + Ngrok
+Then open the local API docs at http://127.0.0.1:5000/docs to inspect routes and request schemas. Do not commit credentials or API keys.
 
-- Check the [notebook](https://colab.research.google.com/drive/1KNi3-9KtP-k-93T3wRcmRe37mRmGhL9p?usp=sharing) + [Video](https://youtu.be/-epZ1hAAtrs)
+## Built with
 
-## Installation
+Python · FastAPI · PostgreSQL/SQLAlchemy · Qdrant provider · LLM and embedding provider modules
 
-### Install the required packages
+## Setup note
 
-```bash
-$ pip install -r requirements.txt
-```
+The repository contains older documentation and Compose services that describe MongoDB/Motor and PostgreSQL/pgvector, while the inspected current application code initializes PostgreSQL through SQLAlchemy and provides a local Qdrant vector-store implementation. Treat those deployment instructions as needing reconciliation before relying on Compose; verify the service configuration and database initialization against the current code.
 
-### Setup the environment variables
+## About
 
-```bash
-$ cp .env.example .env
-```
-
-Set your environment variables in the `.env` file. Like `OPENAI_API_KEY` value.
-
-## Run Docker Compose Services
-
-```bash
-$ cd docker
-$ cp .env.example .env
-```
-
-- update `.env` with your credentials
-
-
-
-```bash
-$ cd docker
-$ sudo docker compose up -d
-```
-
-## Run the FastAPI server
-
-```bash
-$ uvicorn main:app --reload --host 0.0.0.0 --port 5000
-```
-
-## POSTMAN Collection
-
-Download the POSTMAN collection from [/assets/mini-rag-app.postman_collection.json](/assets/mini-rag-app.postman_collection.json)
+Built by Ahmed Magdi as a modular RAG API project. [Repository](https://github.com/AhmedMagdi2003/MINI_RAG)
