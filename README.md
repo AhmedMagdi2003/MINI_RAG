@@ -1,78 +1,43 @@
 # MINI_RAG
 
-An API service for ingesting documents, indexing their content, and answering natural-language questions through retrieval-augmented generation (RAG). The current application code exposes separate data and NLP routes and constructs its language-model, vector-store, and relational-database integrations through provider/configuration modules.
+**Bring your own documents and ask questions grounded in their content.** MINI_RAG is a modular API project that demonstrates a document-to-answer RAG experience, from ingestion and indexing to retrieval-backed question answering.
 
-> **Configuration note:** The repository's older README describes MongoDB/Motor. The inspected application startup instead initializes PostgreSQL through SQLAlchemy, and the vector-store factory supports local Qdrant. The checked-in Docker Compose file includes MongoDB and pgvector/PostgreSQL services, while the current application defaults point to PostgreSQL and local Qdrant. Confirm the intended service setup before treating that Compose file as a complete deployment recipe.
+[View the source](https://github.com/AhmedMagdi2003/MINI_RAG) · [Open the local API docs](http://127.0.0.1:5000/docs) after running the service
 
-## Capabilities
+## The project
 
-- Upload and process documents through the data routes.
-- Index document content and search it through the NLP routes.
-- Submit questions for retrieval-grounded answers.
-- Configure generation and embedding providers through environment settings.
-- Persist relational application data with PostgreSQL and use the configured vector store for retrieval.
+The objective is to provide a small, inspectable foundation for document-based question answering. Data routes handle document operations; NLP routes expose indexing, search, and question-answering capabilities. Model and vector-store integrations are separated behind provider modules so the application can be configured without embedding every choice in the route layer.
 
-These are API capabilities; the repository does not establish a production-hosted UI or deployment.
+## What it demonstrates
 
-## Architecture
+- Document upload and processing through the API.
+- Indexing and semantic retrieval over document content.
+- Natural-language questions answered using retrieved context.
+- Configurable language-model and vector-store providers.
+- A FastAPI surface with generated OpenAPI documentation.
 
-```text
-Client
-  ├── data routes: upload and process documents
-  └── NLP routes: index, search, and answer
-          ├── language-model provider factory
-          ├── vector-store provider factory (Qdrant implementation)
-          └── PostgreSQL access through SQLAlchemy
-```
+## How the experience works
 
-The routes and provider factories are under `src/`. The current vector database factory supports Qdrant with a local persistence path. Available model providers and environment names should be taken from `src/.env.example` and the corresponding provider modules.
+Documents enter through the data API and are processed for indexing. A question is sent through the NLP API, which retrieves relevant indexed content and uses the configured language model to form a grounded response. The project is an API backend; the repository does not establish a hosted end-user interface or production deployment.
 
-## Requirements
+## Try it locally
 
-- Python version compatible with the pinned dependencies in `requirements.txt`.
-- A PostgreSQL instance reachable using the database settings expected by the application.
-- Provider credentials/configuration for the selected model and embedding services, if using hosted providers.
-- Local Qdrant persistence configured for the current vector-store implementation.
+Install the dependencies, configure the environment values in src/.env.example, and provide the database and model-provider settings required by the selected configuration. Start the API from the repository root:
 
-## Local setup
-
-From the repository root:
-
-```bash
-python -m venv .venv
-# Linux/macOS
-source .venv/bin/activate
-# Windows PowerShell: .venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-```
-
-Copy `src/.env.example` to the environment file location loaded by the application, then set database connection values and the desired provider configuration. The example file is under `src/`; there is no root-level `.env.example` in the inspected tree. Do not commit secrets.
-
-Prepare PostgreSQL and apply the repository's supported migrations before starting the API. Exact database initialization and Compose alignment should be confirmed against the current migration/configuration state; the checked-in Compose services do not directly match the application's local-Qdrant default.
-
-Start the API from the repository root:
-
-```bash
+~~~bash
 uvicorn src.main:app --reload --host 127.0.0.1 --port 5000
-```
+~~~
 
-Open `http://127.0.0.1:5000/docs` to inspect the routes and request schemas exposed by the running app.
+Then open the local API docs at http://127.0.0.1:5000/docs to inspect routes and request schemas. Do not commit credentials or API keys.
 
-## API usage
+## Built with
 
-Use the generated OpenAPI page to review the exact endpoints and payload schemas. The route groups cover document upload/processing and NLP indexing, search, and question answering. Provide documents using the upload schema, index processed content, then query the indexed material. Request and response field details should be treated as defined by the current route models rather than inferred from this summary.
+Python · FastAPI · PostgreSQL/SQLAlchemy · Qdrant provider · LLM and embedding provider modules
 
-## Configuration and operational notes
+## Setup note
 
-- Default generation and embedding settings are examples, not production credentials or service guarantees.
-- The checked-in Compose file currently starts MongoDB and PostgreSQL/pgvector, but inspected startup code uses PostgreSQL and a local Qdrant store; confirm intended service wiring before relying on Compose.
-- Review provider implementations and model limits before selecting a deployment configuration.
-- No authentication, access-control, or production-hardening claims are made here.
+The repository contains older documentation and Compose services that describe MongoDB/Motor and PostgreSQL/pgvector, while the inspected current application code initializes PostgreSQL through SQLAlchemy and provides a local Qdrant vector-store implementation. Treat those deployment instructions as needing reconciliation before relying on Compose; verify the service configuration and database initialization against the current code.
 
-## Project objective
+## About
 
-Provide a modular backend foundation for document-based question answering, with API routes separated from language-model and vector-store provider selection.
-
-## License
-
-See the repository's license file, if present.
+Built by Ahmed Magdi as a modular RAG API project. [Repository](https://github.com/AhmedMagdi2003/MINI_RAG)
